@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Laboratorio Virtual: El Origen de la Vida</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=Nunito+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef6f4;--panel:rgba(255,255,255,.8);--ink:#0f2a26;--mute:#46665f;--line:rgba(15,42,38,.14);--teal:#0f9d8a;--coral:#e8502f;--sun:#f2b21a;--vio:#7c4dff;--sky:#1e88e5;--green:#2e9e4f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07141a;--panel:rgba(16,38,44,.78);--ink:#e8f6f2;--mute:#a6cbc2;--line:rgba(232,246,242,.16)}}
+:root[data-theme="dark"]{--bg:#07141a;--panel:rgba(16,38,44,.78);--ink:#e8f6f2;--mute:#a6cbc2;--line:rgba(232,246,242,.16)}
+html,body{height:100%;width:100%;margin:0;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font-family:'Nunito Sans',system-ui,sans-serif;font-size:17px;line-height:1.7}
+h1,h2,h3,h4,.ser{font-family:Fraunces,Georgia,serif;line-height:1.25}
+
+/* Estructura: cabecera + escenario + pie, cada uno en su propia fila (nada se solapa) */
+#app{height:100%;width:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+header{display:flex;align-items:center;gap:1rem;padding:.8rem 1.4rem;border-bottom:1px solid var(--line);background:var(--panel);backdrop-filter:blur(10px);z-index:5}
+.brand{font-weight:800;font-size:1.15rem;white-space:nowrap}
+nav{display:flex;gap:.45rem;overflow-x:auto;margin-left:auto;padding:4px 2px}
+.tab{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:99px;padding:.5rem 1.05rem;font-weight:800;font-size:.9rem;cursor:pointer;white-space:nowrap;transition:transform .35s cubic-bezier(.2,.8,.2,1),background .35s,color .35s,box-shadow .35s}
+.tab:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 8px 22px -8px var(--teal)}
+.tab.on{background:var(--ink);color:var(--bg)}
+#stage{position:relative;overflow:hidden;min-height:0}
+.room{position:absolute;inset:0;overflow-y:auto;padding:2rem 1.6rem 3.5rem;opacity:0;transform:scale(.94);visibility:hidden;pointer-events:none;
+ transition:opacity .7s ease,transform .9s cubic-bezier(.2,.7,.2,1),visibility 0s .9s;
+ background:radial-gradient(ellipse at 15% 0%,color-mix(in srgb,var(--a) 28%,transparent),transparent 60%),radial-gradient(ellipse at 95% 100%,color-mix(in srgb,var(--b) 22%,transparent),transparent 55%),var(--bg)}
+.room.on{opacity:1;transform:scale(1);visibility:visible;pointer-events:auto;transition-delay:0s}
+.room.leave{opacity:0;transform:scale(1.05);visibility:visible;transition:opacity .5s ease,transform .6s ease}
+.wrap{max-width:1180px;margin:0 auto}
+.glass{background:var(--panel);border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(14px)}
+.pad{padding:1.8rem 2rem}
+.mute{color:var(--mute)}
+.t{margin:.9rem 0;max-width:68ch;line-height:1.85;font-size:1.05rem}
+.zoom h3,.zoom h4{margin-top:.2rem}
+.btn{border:0;border-radius:14px;padding:.8rem 1.4rem;font-weight:800;color:#fff;cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s,filter .3s}
+.btn:hover:not(:disabled){transform:translateY(-3px) scale(1.03);box-shadow:0 12px 26px -10px rgba(0,0,0,.5);filter:brightness(1.08)}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.35;cursor:not-allowed}
+.chip{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:99px;padding:.4rem 1rem;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .3s}
+.chip:hover{transform:translateY(-2px);border-color:var(--a)}.chip.on{background:var(--a);border-color:var(--a);color:#fff}
+.zoom{animation:zin .7s cubic-bezier(.2,.7,.2,1)}
+@keyframes zin{from{transform:scale(1.05);opacity:.15}to{transform:none;opacity:1}}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+.pop{animation:pop .6s cubic-bezier(.3,1.5,.5,1) both}
+.cell{width:96px;height:96px;border-radius:50%;border:4px solid var(--teal);background:color-mix(in srgb,var(--teal) 14%,transparent);display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:5px;padding:14px}
+.cell.g{border-color:var(--coral);background:color-mix(in srgb,var(--coral) 14%,transparent);width:72px;height:72px;padding:10px}
+.chr{width:9px;height:32px;border-radius:6px}.cell.g .chr{height:24px}
+.opt{width:100%;text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:16px;padding:1rem 1.2rem;font-weight:800;font-size:1rem;cursor:pointer;transition:all .3s}
+.opt:hover:not(:disabled){transform:translateX(8px);border-color:var(--a)}
+.opt.ok{background:#16a34a;border-color:#16a34a;color:#fff}.opt.no{background:#dc2626;border-color:#dc2626;color:#fff}
+.step{cursor:pointer;transition:all .4s}.step:hover{transform:translateY(-3px)}.step.cur{outline:2px solid var(--a)}.step:not(.cur){opacity:.6}
+.bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}.bar>div{height:100%;background:linear-gradient(90deg,var(--a),var(--b));transition:width .8s cubic-bezier(.2,.7,.2,1)}
+.dot{width:40px;height:40px;border-radius:50%;border:2px solid var(--line);background:var(--panel);font-weight:800;cursor:pointer;color:var(--ink);transition:all .3s}
+.dot:hover{transform:scale(1.15)}.dot.on{background:var(--a);border-color:var(--a);color:#fff}
+/* Pie fijo en su propia fila: no tapa el contenido */
+footer{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.7rem 1rem;padding:.7rem 1rem;border-top:1px solid var(--line);background:var(--panel);backdrop-filter:blur(14px);z-index:5}
+footer span{font-weight:800;color:var(--mute);font-size:.95rem}
+footer a{border-radius:99px;padding:.6rem 1.4rem;font-weight:800;color:#fff;text-decoration:none;transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .3s,box-shadow .3s}
+footer a:hover{transform:translateY(-3px) scale(1.05);filter:brightness(1.12);box-shadow:0 10px 24px -10px rgba(0,0,0,.6)}
+@media (max-width:720px){header{flex-direction:column;align-items:flex-start;gap:.4rem}nav{margin-left:0;width:100%}.pad{padding:1.3rem 1.2rem}footer span{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style>
+</head>
+<body>
+<div id="app">
+<header><div class="brand ser">🧬 Laboratorio Virtual: El Origen de la Vida</div><nav id="nav"></nav></header>
+
+<main id="stage">
+<!-- SALA 1 -->
+<section class="room" id="r0" style="--a:var(--teal);--b:var(--coral)"><div class="wrap">
+  <h2 class="ser text-4xl font-extrabold">Sala 1 · Microbiología: división celular</h2>
+  <div class="flex flex-wrap gap-3 my-6"><button class="btn" id="bMi" style="background:var(--teal)">Mitosis somática (2n)</button><button class="btn" id="bMe" style="background:var(--coral)">Meiosis germinal (n)</button></div>
+  <div class="grid lg:grid-cols-5 gap-6">
+    <div class="glass pad lg:col-span-2"><div id="cellView" class="flex flex-col items-center gap-3"></div></div>
+    <div class="glass pad lg:col-span-3" id="cellText"></div>
+  </div></div></section>
+
+<!-- SALA 2 -->
+<section class="room" id="r1" style="--a:var(--sun);--b:var(--green)"><div class="wrap">
+  <h2 class="ser text-4xl font-extrabold">Sala 2 · Botánica: la papa arequipeña</h2>
+  <div class="glass pad my-6"><h3 class="ser text-xl font-bold">Desmintiendo el mito de las semillas</h3>
+   <p class="t">Se cree que la papa nace de una “semilla”. En el cultivo, la planta se multiplica por <b>reproducción asexual</b>: se siembra un <b>tubérculo-semilla</b> entero o fragmentado. La papa es un <b>tallo subterráneo modificado</b> que acumula almidón en amiloplastos. Sus “ojos” son <b>yemas axilares</b> ubicadas en los nudos del tallo.</p>
+   <p class="t">Cada yema, con su tejido meristemático, puede originar una planta completa sin polinización ni fusión de gametos, por lo que los descendientes son <b>clones</b>. La papa sí produce bayas con semillas verdaderas (sexuales), pero se usan sobre todo en el mejoramiento genético.</p></div>
+  <div class="flex flex-wrap gap-3 mb-6"><button class="btn" id="bPapa" style="background:var(--sun);color:#3a2a00">Ver reproducción asexual</button><button class="btn" id="bPapaR" style="background:var(--vio)">Reiniciar</button></div>
+  <div id="papaView" class="grid grid-cols-2 lg:grid-cols-5 gap-4"></div>
+  <div id="papaTxt" class="glass pad mt-6 hidden"></div></div></section>
+
+<!-- SALA 3 -->
+<section class="room" id="r2" style="--a:var(--sky);--b:var(--vio)"><div class="wrap" style="max-width:860px">
+  <div class="flex justify-between items-center flex-wrap gap-3"><h2 class="ser text-4xl font-extrabold">Sala 3 · Zoología: la Taruca</h2>
+   <div class="ser text-xl font-bold px-5 py-2 rounded-full" style="background:var(--sun);color:#3a2a00">Puntaje: <span id="score">0</span></div></div>
+  <p class="mute mt-3">La taruca (<i>Hippocamelus antisensis</i>) es el ciervo andino de las laderas rocosas de la puna y la zona altoandina del sur del Perú.</p>
+  <div class="bar my-5"><div id="qBar" style="width:0"></div></div>
+  <div id="triviaBox" class="glass pad"></div></div></section>
+
+<!-- SALA 4 -->
+<section class="room" id="r3" style="--a:var(--vio);--b:var(--sky)"><div class="wrap">
+  <h2 class="ser text-4xl font-extrabold">Sala 4 · Embriología de mamíferos</h2>
+  <div class="bar my-5"><div id="embBar"></div></div>
+  <div class="flex gap-2 mb-6" id="embDots"></div>
+  <div class="grid lg:grid-cols-5 gap-6 items-stretch">
+    <div class="glass pad lg:col-span-2 flex items-center justify-center" id="embSvg"></div>
+    <div class="glass pad lg:col-span-3" id="embText"></div></div>
+  <div class="flex justify-between mt-6"><button class="btn" id="embPrev" style="background:var(--sky)">Anterior</button><button class="btn" id="embNext" style="background:var(--vio)">Siguiente</button></div></div></section>
+</main>
+
+<footer><span>Sigue explorando:</span>
+  <a href="https://phet.colorado.edu/es/" target="_blank" rel="noopener" style="background:var(--sky)">Explora PhET</a>
+  <a href="https://www.biointeractive.org/" target="_blank" rel="noopener" style="background:var(--coral)">Explora BioInteractive</a></footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const salas=["Microbiología","Botánica","Zoología","Embriología"];
+let cur=-1;
+function zoom(el){el.classList.remove('zoom');void el.offsetWidth;el.classList.add('zoom')}
+function go(i){
+  if(i===cur)return;
+  const old=document.querySelector('.room.on');
+  if(old){old.classList.remove('on');old.classList.add('leave');setTimeout(()=>old.classList.remove('leave'),650)}
+  setTimeout(()=>{$('r'+i).classList.add('on');$('r'+i).scrollTop=0},old?350:0);
+  cur=i;document.querySelectorAll('.tab').forEach((t,k)=>t.classList.toggle('on',k===i));
+}
+$('nav').innerHTML=salas.map((s,i)=>`<button class="tab" data-i="${i}">${i+1}. ${s}</button>`).join('');
+$('nav').onclick=e=>{const b=e.target.closest('.tab');if(b)go(+b.dataset.i)};
+const chips=(arr,i)=>arr.map((p,k)=>`<button class="chip ${k===i?'on':''}" data-k="${k}">${p[0]}</button>`).join('');
+
+/* SALA 1 */
+const C={b1:'#2563eb',b2:'#93c5fd',r1:'#db2777',r2:'#f9a8d4'};
+const cell=(a,g)=>`<div class="cell ${g?'g':''} pop">${a.map(c=>`<span class="chr" style="background:${C[c]}"></span>`).join('')}</div>`;
+const D={
+ mi:{col:'--teal',t:'Mitosis somática: crecimiento y regeneración',
+  intro:'La mitosis ocurre en células somáticas diploides (2n). En la fase S de la interfase el ADN se duplica: cada cromosoma pasa a tener dos cromátidas hermanas unidas por el centrómero. Una división produce dos células hijas 2n genéticamente idénticas.<br><br>Su papel es estricto: permite el <b>crecimiento</b> del organismo y la <b>regeneración</b> de tejidos (piel, epitelio intestinal, médula ósea, cicatrización). No genera variabilidad.',
+  ph:[['Profase','La cromatina se condensa en cromosomas visibles, desaparece el nucléolo, los centrosomas migran a polos opuestos y se arma el huso mitótico de microtúbulos.'],
+  ['Metafase','Se desintegra la envoltura nuclear. Los microtúbulos se anclan a los cinetocoros y los cromosomas se alinean en la placa ecuatorial; el punto de control del huso verifica la unión correcta.'],
+  ['Anafase','La separasa degrada la cohesina del centrómero. Las cromátidas hermanas se separan y viajan a polos opuestos mientras el huso se acorta y la célula se alarga.'],
+  ['Telofase','Los cromosomas llegan a los polos y se descondensan, se reforma la envoltura nuclear y el nucléolo. La citocinesis (anillo de actina y miosina) divide el citoplasma: nacen 2 células 2n.']],
+  kids:()=>{const m=['b1','b2','r1','r2'];return[m,m]},lab:'2 células hijas 2n, idénticas'},
+ me:{col:'--coral',t:'Meiosis germinal: gametos haploides y variabilidad',
+  intro:'La meiosis ocurre en células germinales diploides. Tras una sola replicación del ADN hay dos divisiones: la meiosis I (reduccional) y la II (ecuacional). Origina <b>4 gametos haploides (n)</b>.<br><br>La fecundación restaura el número 2n. Su valor biológico es la <b>variabilidad genética</b>, materia prima de la evolución, gracias a dos motores: el crossing-over y la segregación al azar.',
+  ph:[['Profase I','Los homólogos se aparean (sinapsis) y forman bivalentes. En el <b>paquiteno</b> ocurre el <b>crossing-over</b>: cromátidas no hermanas intercambian segmentos en los quiasmas con ayuda de enzimas de recombinación. Así surgen cromosomas recombinantes con nuevas combinaciones de alelos.'],
+  ['Metafase I','Los bivalentes se alinean en el ecuador y cada par se orienta al azar hacia un polo. Esta <b>segregación independiente</b> permite 2²³ (≈ 8 millones) de combinaciones en humanos, sin contar el crossing-over.'],
+  ['Anafase I','Se separan los cromosomas homólogos (no las cromátidas). Es la etapa que reduce el número de 2n a n.'],
+  ['Meiosis II','Funciona como una mitosis: se separan las cromátidas hermanas. Resultan 4 células haploides (n), todas genéticamente distintas entre sí.']],
+  kids:()=>[['b1','r2'],['b2','r1'],['b1','r1'],['b2','r2']],lab:'4 gametos n, todos distintos'}};
+let mode='mi',pi=0;
+function render1(){const d=D[mode];
+  $('bMi').style.opacity=mode==='mi'?1:.45;$('bMe').style.opacity=mode==='me'?1:.45;
+  $('cellView').innerHTML=`<div class="ser font-bold">Célula madre (2n = 4)</div>${cell(['b1','b2','r1','r2'])}<div class="text-2xl">↓</div><div class="ser font-bold text-center">${d.lab}</div><div class="flex gap-3 flex-wrap justify-center">${d.kids().map(k=>cell(k,1)).join('')}</div>`;
+  $('cellText').style.setProperty('--a',`var(${d.col})`);
+  $('cellText').innerHTML=`<h3 class="ser text-2xl font-bold" style="color:var(${d.col})">${d.t}</h3><p class="t">${d.intro}</p><div class="flex flex-wrap gap-2 my-5">${chips(d.ph,pi)}</div><div class="zoom"><h4 class="ser font-bold text-lg">${d.ph[pi][0]}</h4><p class="t">${d.ph[pi][1]}</p></div>`;}
+$('bMi').onclick=()=>{mode='mi';pi=0;render1();zoom($('cellView'))};
+$('bMe').onclick=()=>{mode='me';pi=0;render1();zoom($('cellView'))};
+$('cellText').onclick=e=>{const c=e.target.closest('.chip');if(c){pi=+c.dataset.k;render1()}};
+
+/* SALA 2 */
+const P=[['🥔','Tubérculo-semilla','Tallo subterráneo modificado (estolón engrosado) lleno de almidón en amiloplastos: es la reserva de energía. Sus ojos son yemas axilares en los nudos del tallo, con células meristemáticas listas para dividirse.'],
+['⚡','Se rompe la dormancia','Con el fin del reposo, la temperatura y la humedad adecuadas aumentan las <b>giberelinas</b>. Estas hormonas vegetales activan enzimas (como las amilasas) que hidrolizan el almidón en azúcares, el combustible del brote.'],
+['🌱','Mitosis en las yemas','Las células de la yema axilar se dividen por mitosis y se alargan. Brota un tallo con hojas pequeñas. No hay polinización ni fusión de gametos: solo copias del ADN de la planta madre.'],
+['🌿','Raíces y hojas','Nacen raíces adventicias y las hojas inician la fotosíntesis. Poco a poco la planta deja de depender de las reservas del tubérculo madre.'],
+['🪴','Un clon idéntico','Se forma una planta genéticamente idéntica (salvo mutaciones raras). Al final de su ciclo, los estolones engrosan nuevos tubérculos y se repite el ciclo. Por eso se conservan las variedades nativas.']];
+let pt=null;
+function papaShow(i){
+  $('papaView').innerHTML=P.slice(0,Math.max(i+1,0)).map((p,k)=>`<div class="glass p-4 text-center step pop ${k===i?'cur':''}" data-k="${k}"><div style="font-size:2.6rem">${p[0]}</div><div class="ser font-bold">${k+1}. ${p[1]}</div></div>`).join('');
+  $('papaTxt').classList.toggle('hidden',i<0);
+  if(i>=0)$('papaTxt').innerHTML=`<div class="zoom"><h3 class="ser text-xl font-bold">${P[i][1]}</h3><p class="t">${P[i][2]}</p></div>`;}
+function papaStop(){clearInterval(pt)}
+$('bPapaR').onclick=()=>{papaStop();papaShow(-1);$('bPapa').disabled=false};
+$('bPapa').onclick=()=>{papaStop();$('bPapa').disabled=true;let i=0;papaShow(0);zoom($('papaView'));
+  pt=setInterval(()=>{i++;papaShow(i);if(i>=P.length-1){papaStop();$('bPapa').disabled=false}},3200)};
+$('papaView').onclick=e=>{const s=e.target.closest('.step');if(s){papaStop();$('bPapa').disabled=false;papaShow(+s.dataset.k)}};
+
+/* SALA 3 */
+const Q=[
+['¿Qué tipo de reproducción tiene la taruca?','Sexual: se unen un óvulo y un espermatozoide','Asexual: un solo progenitor origina clones',0,'La taruca produce gametos haploides por meiosis. Su unión genera crías con combinaciones nuevas de genes, una ventaja en ambientes cambiantes.'],
+['¿Dónde ocurre la fecundación en la taruca?','Fuera del cuerpo, en el agua','Dentro del cuerpo de la hembra (interna)',1,'Es un mamífero terrestre: el macho deposita los espermatozoides en el aparato reproductor de la hembra y el óvulo se fecunda dentro de ella. Se forma el cigoto diploide (2n).'],
+['¿Qué ventaja da el viviparismo en la puna, con heladas nocturnas?','El embrión se desarrolla dentro de la madre, a unos 38 °C','El embrión se deja en un nido sobre el suelo',0,'En la zona altoandina la temperatura nocturna baja de 0 °C. Dentro del útero el embrión está protegido del frío, a temperatura estable, y la madre puede huir de depredadores.'],
+['¿Qué aporta la placenta al embrión?','Oxígeno y nutrientes (y retira desechos)','Almidón para formar tubérculos',0,'La placenta, derivada del trofoblasto, permite el intercambio de gases, nutrientes y desechos entre la sangre materna y la fetal sin que se mezclen.'],
+['¿Cómo recibe la cría de ciervo sus primeros anticuerpos?','Sobre todo por el calostro de la primera leche','Por la fotosíntesis de su madre',0,'En los rumiantes y cérvidos la placenta casi no transfiere anticuerpos, así que la defensa llega con el calostro. En otros mamíferos, como el humano, parte pasa por la placenta.'],
+['¿Con qué célula empieza la vida de una cría de taruca?','Con un cigoto diploide (2n)','Con un gameto haploide (n)',0,'El cigoto resulta de la fusión de dos gametos haploides. Luego se divide por mitosis para formar mórula, blastocisto y el embrión.']];
+let qi=0,sc=0;
+function trivia(){const b=$('triviaBox');$('qBar').style.width=(qi/Q.length*100)+'%';
+  if(qi>=Q.length){const m=sc===Q.length?'¡Excelente, eres experto en tarucas!':sc>=4?'¡Muy bien! Repasa los detalles.':'Sigue explorando el laboratorio y vuelve a intentarlo.';
+   b.innerHTML=`<div class="text-center py-6 pop"><div style="font-size:3.4rem">🦌</div><h3 class="ser text-3xl font-bold">${sc} de ${Q.length} aciertos</h3><p class="mute my-4">${m}</p><button class="btn" id="again" style="background:var(--sky)">Jugar otra vez</button></div>`;
+   $('again').onclick=()=>{qi=0;sc=0;$('score').textContent=0;trivia();zoom(b)};return}
+  const q=Q[qi];
+  b.innerHTML=`<div class="zoom"><p class="mute text-sm">Pregunta ${qi+1} de ${Q.length}</p><h3 class="ser text-2xl font-bold my-3">${q[0]}</h3>
+  <div class="space-y-3 my-5"><button class="opt" data-k="0">A) ${q[1]}</button><button class="opt" data-k="1">B) ${q[2]}</button></div>
+  <p id="fb" class="t" style="min-height:4.5rem"></p><button class="btn hidden" id="nx" style="background:var(--vio)"></button></div>`;
+  b.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{const ok=+o.dataset.k===q[3];
+   b.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(+x.dataset.k===q[3])x.classList.add('ok')});
+   if(ok){sc++;$('score').textContent=sc}else o.classList.add('no');
+   $('fb').innerHTML=(ok?'<b style="color:#16a34a">¡Correcto!</b> ':'<b style="color:#dc2626">Incorrecto.</b> ')+q[4];
+   $('nx').classList.remove('hidden');$('nx').textContent=qi===Q.length-1?'Ver resultado':'Siguiente pregunta';
+   $('nx').onclick=()=>{qi++;trivia()}});}
+
+/* SALA 4 */
+const E=[['Cigoto','Es la célula inicial, <b>diploide (2n) y totipotente</b>: puede originar todos los tipos celulares del embrión y la placenta. Resulta de la fusión del óvulo con el espermatozoide en la fecundación. Su ADN combina el aporte materno y paterno.'],
+['Mórula','Por <b>segmentación mitótica</b> rápida, sin crecimiento celular, el cigoto se divide en blastómeros cada vez más pequeños. Forma una masa compacta de 16 a 32 células, similar a una mora. Las células se compactan y empiezan a polarizarse.'],
+['Blastocisto','En la <b>blastulación</b> aparece una cavidad, el blastocele. Se diferencian el <b>trofoblasto</b> (capa externa, origen de la placenta) y el <b>embrioblasto</b> o masa celular interna, que formará el embrión. Luego ocurre la <b>implantación</b> en el endometrio uterino.'],
+['Gástrula','En la <b>gastrulación</b> las células migran e invaginan (en mamíferos, a través de la línea primitiva) y el embrión se vuelve triploblástico.<br><br><b>Ectodermo</b>: epidermis y sistema nervioso.<br><b>Mesodermo</b>: músculos, huesos, corazón, sangre y riñones.<br><b>Endodermo</b>: revestimiento digestivo y respiratorio, hígado y páncreas.'],
+['Organogénesis','Una <b>morfogénesis coordinada</b> convierte las capas germinales en esbozos de órganos. Se cierra el tubo neural (futuro cerebro y médula), aparecen las somitas (vértebras y músculos), el tubo cardíaco comienza a latir y se forman los brotes de las extremidades. El embrión pasa a ser feto.']];
+const cc=(x,y,r,f)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}" stroke="#0f9d8a" stroke-width="2"/>`;
+function svg(i){let s='';
+ if(i===0)s=cc(100,100,48,'#7dd3c0')+cc(100,100,12,'#0b6f62');
+ if(i===1){for(let k=0;k<12;k++){const a=k*Math.PI/6;s+=cc(100+Math.cos(a)*42,100+Math.sin(a)*42,20,'#7dd3c0')}for(let k=0;k<4;k++){const a=k*Math.PI/2+.7;s+=cc(100+Math.cos(a)*14,100+Math.sin(a)*14,15,'#5fc0ab')}}
+ if(i===2){for(let k=0;k<16;k++){const a=k*Math.PI/8;s+=cc(100+Math.cos(a)*64,100+Math.sin(a)*64,11,'#7dd3c0')}for(let k=0;k<5;k++)s+=cc(122+Math.cos(k*1.3)*10,116+Math.sin(k*1.3)*12,11,'#f2b21a')}
+ if(i===3)s=cc(100,100,72,'#1e88e5')+cc(100,100,50,'#e8502f')+cc(100,100,26,'#f2b21a');
+ if(i===4)s=`<ellipse cx="100" cy="112" rx="72" ry="42" fill="#7dd3c0" stroke="#0f9d8a" stroke-width="2"/>`+cc(55,95,28,'#7dd3c0')+`<rect x="70" y="92" width="100" height="10" rx="5" fill="#f2b21a"/>`+[0,1,2,3,4].map(k=>`<rect x="${82+k*17}" y="108" width="11" height="16" rx="4" fill="#e8502f"/>`).join('')+cc(52,92,5,'#7c4dff')+cc(76,126,6,'#dc2626');
+ return `<svg viewBox="0 0 200 200" style="width:min(300px,100%)" class="pop">${s}</svg>`}
+let ei=0;
+function emb(){$('embBar').style.width=((ei+1)/E.length*100)+'%';
+  $('embDots').innerHTML=E.map((e,k)=>`<button class="dot ${k<=ei?'on':''}" data-k="${k}" title="${e[0]}">${k+1}</button>`).join('');
+  $('embSvg').innerHTML=svg(ei);
+  $('embText').innerHTML=`<div class="zoom"><h3 class="ser text-3xl font-bold" style="color:var(--vio)">${ei+1}. ${E[ei][0]}</h3><p class="t">${E[ei][1]}</p><p class="mute text-sm mt-5">${E.map((e,k)=>k===ei?`<b>${e[0]}</b>`:e[0]).join(' → ')}</p></div>`;
+  $('embPrev').disabled=ei===0;$('embNext').disabled=ei===E.length-1;}
+$('embPrev').onclick=()=>{if(ei>0){ei--;emb()}};
+$('embNext').onclick=()=>{if(ei<E.length-1){ei++;emb()}};
+$('embDots').onclick=e=>{const d=e.target.closest('.dot');if(d){ei=+d.dataset.k;emb()}};
+
+render1();papaShow(-1);trivia();emb();go(0);
+</script>
+</body>
+</html>
